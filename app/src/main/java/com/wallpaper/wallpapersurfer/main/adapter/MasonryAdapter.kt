@@ -9,9 +9,10 @@ import android.widget.ImageView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.wallpaper.wallpapersurfer.R
+import com.wallpaper.wallpapersurfer.model.PhotoResponse
 
 
-class MasonryAdapter(private val context: Context) : RecyclerView.Adapter<MasonryAdapter.MasonryView>() {
+class MasonryAdapter(private val context: Context, private val photos: ArrayList<PhotoResponse>) : RecyclerView.Adapter<MasonryAdapter.MasonryView>() {
 
     private var imgList = intArrayOf(
         R.drawable.two,
@@ -33,14 +34,14 @@ class MasonryAdapter(private val context: Context) : RecyclerView.Adapter<Masonr
 
     override fun onBindViewHolder(holder: MasonryView, position: Int) {
         Glide.with(context)
-            .setDefaultRequestOptions(RequestOptions().placeholder(imgList[position]))
-            .load(imgList[position])
+            .setDefaultRequestOptions(RequestOptions().placeholder(R.drawable.default_image))
+            .load(photos[position].urls.small)
             .into(holder.imageView)
 //        holder.imageView.setImageResource(imgList[position])
     }
 
     override fun getItemCount(): Int {
-        return imgList.size
+        return photos.size
     }
 
     class MasonryView(itemView: View) : RecyclerView.ViewHolder(itemView) {
