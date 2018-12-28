@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="url">https://api.unsplash.com/</string>
     <string name="unsplash_access_key">d15e56b9ff188d93cced401d38694a097a9921253528b2d0acdeaf68b650404b</string>
     <string name="unsplash_secret_key">da040fdcd2a0eab62a084360a7dca16911ac878403acb35b4599190f3c1de0ab</string>
 </resources>
