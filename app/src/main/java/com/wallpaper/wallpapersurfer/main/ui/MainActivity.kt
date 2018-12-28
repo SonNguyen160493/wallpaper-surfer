@@ -1,4 +1,4 @@
-package com.wallpaper.wallpapersurfer.main
+package com.wallpaper.wallpapersurfer.main.ui
 
 import android.os.Bundle
 import android.support.design.widget.NavigationView
@@ -11,36 +11,41 @@ import android.support.v7.widget.StaggeredGridLayoutManager
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.Toast
 import com.wallpaper.wallpapersurfer.R
 import com.wallpaper.wallpapersurfer.api.UnsplashApiService
-import com.wallpaper.wallpapersurfer.main.adapter.MasonryAdapter
+import com.wallpaper.wallpapersurfer.adapter.MasonryAdapter
 import com.wallpaper.wallpapersurfer.model.PhotoResponse
-import com.wallpaper.wallpapersurfer.model.User
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 
-class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, MainViewInterface {
 
     val context = this@MainActivity
 
-    val unsplashApiService by lazy {
-        UnsplashApiService.create(context)
-    }
+    private lateinit var masonryView: RecyclerView
+    private lateinit var masonryViewLayoutManager: StaggeredGridLayoutManager
 
-    private lateinit var disposable: CompositeDisposable
+    private lateinit var mainPresenter: MainPresenter
+
+    private var listPhoto: ArrayList<PhotoResponse> = arrayListOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
 
-        disposable = CompositeDisposable()
+        masonryView = findViewById(R.id.masonry_grid)
+        masonryViewLayoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
+        masonryView.layoutManager = masonryViewLayoutManager
+        masonryView.addItemDecoration(SpacesItemDecoration(0))
+        masonryView.adapter = MasonryAdapter(this, listPhoto)
 
-        getPhoto()
+        setupMVP()
+
+        mainPresenter.getWallpaper(1)
 
         fab.setOnClickListener { view ->
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
@@ -112,28 +117,32 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onPause() {
         super.onPause()
-        disposable.dispose()
+        mainPresenter.disposeService()
     }
 
-    private fun getPhoto() {
-        disposable.add(unsplashApiService.getPhoto(resources.getString(R.string.unsplash_access_key)).subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .doOnSubscribe { }
-            .doOnError { }
-            .doOnComplete { }
-            .subscribe(
-                { result -> showImage(result) },
-                { error -> Log.d("SonNN", "Error: " + error.toString())}
-            ))
+    private fun setupMVP(){
+        mainPresenter = MainPresenter(this, context)
+
+        masonryView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+
+                var totalItemCount = masonryViewLayoutManager.itemCount
+                var lastVisibleItem = masonryViewLayoutManager.findFirstVisibleItemPositions(null)[0]
+
+                if(totalItemCount <= (lastVisibleItem + 5)) {
+                    mainPresenter.loadMore()
+                }
+            }
+        })
     }
 
-    private fun showImage(responses: ArrayList<PhotoResponse>) {
-        var masonryView = findViewById<RecyclerView>(R.id.masonry_grid)
-        masonryView.layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
+    override fun displayWallpaper(responses: ArrayList<PhotoResponse>, page: Int) {
+        appendAdapterData(responses)
+    }
 
-        var masonryAdapter = MasonryAdapter(this, responses)
-        masonryView.adapter = masonryAdapter
-        masonryView.addItemDecoration(SpacesItemDecoration(0))
-
+    private fun appendAdapterData(listData: ArrayList<PhotoResponse>) {
+        listPhoto.addAll(listData)
+        masonryView.adapter?.notifyDataSetChanged()
     }
 }

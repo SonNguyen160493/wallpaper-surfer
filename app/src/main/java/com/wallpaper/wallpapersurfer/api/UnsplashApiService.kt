@@ -12,6 +12,7 @@ import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.Query
 
 interface UnsplashApiService {
@@ -35,7 +36,7 @@ interface UnsplashApiService {
                 .addInterceptor(logging)
 
             val retrofit = Retrofit.Builder()
-                .client(okHttpClient.build())
+//                .client(okHttpClient.build())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .addConverterFactory(GsonConverterFactory.create())
                 .baseUrl(context.resources.getString(R.string.url))
@@ -46,5 +47,5 @@ interface UnsplashApiService {
     }
 
     @GET("photos/")
-    fun getPhoto(@Query("client_id") client_id: String) : Observable<ArrayList<PhotoResponse>>
+    fun getPhoto(@Query("client_id") clientID: String?, @Query("page") Page: Int?, @Query("per_page") perPage: Int?, @Query("order_by") orderBy: String?) : Observable<ArrayList<PhotoResponse>>
 }

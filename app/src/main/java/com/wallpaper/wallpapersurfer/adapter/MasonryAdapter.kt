@@ -1,4 +1,4 @@
-package com.wallpaper.wallpapersurfer.main.adapter
+package com.wallpaper.wallpapersurfer.adapter
 
 import android.content.Context
 import android.support.v7.widget.RecyclerView
@@ -14,19 +14,6 @@ import com.wallpaper.wallpapersurfer.model.PhotoResponse
 
 class MasonryAdapter(private val context: Context, private val photos: ArrayList<PhotoResponse>) : RecyclerView.Adapter<MasonryAdapter.MasonryView>() {
 
-    private var imgList = intArrayOf(
-        R.drawable.two,
-        R.drawable.one,
-        R.drawable.three,
-        R.drawable.four,
-        R.drawable.five,
-        R.drawable.six,
-        R.drawable.seven,
-        R.drawable.eight,
-        R.drawable.nine,
-        R.drawable.ten
-    )
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MasonryView {
         val layoutView = LayoutInflater.from(parent.context).inflate(R.layout.image_item, parent, false)
         return MasonryView(layoutView)
@@ -37,7 +24,6 @@ class MasonryAdapter(private val context: Context, private val photos: ArrayList
             .setDefaultRequestOptions(RequestOptions().placeholder(R.drawable.default_image))
             .load(photos[position].urls.small)
             .into(holder.imageView)
-//        holder.imageView.setImageResource(imgList[position])
     }
 
     override fun getItemCount(): Int {
@@ -48,3 +34,16 @@ class MasonryAdapter(private val context: Context, private val photos: ArrayList
         var imageView: ImageView = itemView.findViewById<View>(R.id.img) as ImageView
     }
 }
+
+//    private var imgList = intArrayOf(
+//        R.drawable.two,
+//        R.drawable.one,
+//        R.drawable.three,
+//        R.drawable.four,
+//        R.drawable.five,
+//        R.drawable.six,
+//        R.drawable.seven,
+//        R.drawable.eight,
+//        R.drawable.nine,
+//        R.drawable.ten
+//    )
